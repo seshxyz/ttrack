@@ -1,0 +1,13 @@
+server:
+  port: 8090
+  servlet:
+    application-display-name: 2track
+
+
+spring:
+  application:
+    name: ttrack
+    version: 0.1
+
+logging:
+  config: classpath:log4j2-config.xml
