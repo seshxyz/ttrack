@@ -1,15 +1,11 @@
 package com.thiscompany.ttrack.controller;
 
-import com.thiscompany.ttrack.controller.payload.TaskRequest;
 import com.thiscompany.ttrack.controller.payload.TaskResponse;
 import com.thiscompany.ttrack.service.TaskService;
-import com.thiscompany.ttrack.service.impl.TaskServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 

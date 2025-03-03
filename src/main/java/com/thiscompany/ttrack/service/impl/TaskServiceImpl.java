@@ -36,7 +36,7 @@ public class TaskServiceImpl implements TaskService {
                 task.getId(), task.getTitle(),
                 task.getDescription(), task.getPriority().name(),
                 task.getStatus().name()
-        )
+        );
     }
 
     @Override
