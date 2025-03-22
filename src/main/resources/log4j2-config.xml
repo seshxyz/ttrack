@@ -12,18 +12,18 @@
             <PatternLayout disableAnsi="false">
                 <replace regex="(password=)([^\\]*)(\]\])" replacement="$1***$3"/>
                 <Pattern>%d{HH:mm:ss.SSS} %highlight{%-5p} [%thread] %style{%X} %-25.25logger{20} -- %highlight{%m} %n</Pattern>
-            </PatternLayout><!--[%-30.30thread]-->
+            </PatternLayout>
         </Console>
     </Appenders>
 
 
-    <!--            -->
-
     <Loggers>
-        <Root level="INFO">
-            <AppenderRef ref="STDOUT_PLAIN"/>
+        <Root level="DEBUG">
+            <AppenderRef ref="STDOUT"/>
         </Root>
-        <Logger name="com.sun" level="WARN"/>
+        <Logger name="sun.rmi" level="INFO"/>
+        <Logger name="javax.management" level="INFO"/>
+        <Logger name="com.sun" level="INFO"/>
         <Logger name="com.zaxxer" level="WARN"/>
         <Logger name="org.apache" level="WARN"/>
         <Logger name="org.hibernate" level="WARN"/>

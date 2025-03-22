@@ -7,12 +7,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
+@Entity
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "tasks")
 public class Task {
 
@@ -20,14 +20,13 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
 
-    @Column
+    @Column(length = 540)
     private String description;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
     private Priority priority;
 
     @Column(nullable = false)
@@ -36,7 +35,7 @@ public class Task {
     @Column(nullable = false)
     private TaskState state;
 
-    @Column
-    private Boolean completed;
+    @Column(nullable = false)
+    private Boolean completed = false;
 
 }

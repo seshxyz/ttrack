@@ -6,7 +6,7 @@ public record TaskResponse(
         String title,
         String description,
         String priority,
-        String status
+        String status,
+        String state
 
-) {
-}
+) {}

@@ -2,12 +2,15 @@ package com.thiscompany.ttrack.enums;
 
 public enum TaskStatus {
 
-    DRAFT(0), IN_PROGRESS(1), COMPLETED(2), CANCELED(3);
+    DRAFT("draft"), IN_PROGRESS("in progress"), COMPLETED("completed"), CANCELED("canceled");
 
-    private final int status;
+    private final String name;
 
-    TaskStatus(int code) {
-        this.status = code;
+    TaskStatus(String name) {
+        this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
 }

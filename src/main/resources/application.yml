@@ -1,13 +1,21 @@
 server:
-  port: 8090
+  port: 8080
   servlet:
     application-display-name: 2track
 
-
 spring:
+  config:
+    import: file:src/main/resources/secret.yml
   application:
-    name: ttrack
+    name: 2track
     version: 0.1
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  messages:
+    common-messages: messages.properties
+  liquibase:
+    enabled: false
 
 logging:
   config: classpath:log4j2-config.xml
