@@ -3,7 +3,7 @@ package com.thiscompany.ttrack.service.task.mapper;
 import com.thiscompany.ttrack.controller.payload.NewTaskRequest;
 import com.thiscompany.ttrack.controller.payload.TaskResponse;
 import com.thiscompany.ttrack.controller.payload.TaskUpdateRequest;
-import com.thiscompany.ttrack.enums.converter.EnumMapper;
+import com.thiscompany.ttrack.enums.mapper.EnumMapper;
 import com.thiscompany.ttrack.model.Task;
 import org.mapstruct.*;
 

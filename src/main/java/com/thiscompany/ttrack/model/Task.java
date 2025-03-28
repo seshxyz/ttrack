@@ -7,12 +7,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 
-@Entity
+
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "id")
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Table(name = "tasks")
 public class Task {
 

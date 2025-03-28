@@ -11,7 +11,7 @@ public class PriorityConverter implements AttributeConverter<Priority, String> {
     public String convertToDatabaseColumn(Priority attribute) {
         for (Priority priority : Priority.values()) {
             if (attribute.equals(priority)) {
-                return priority.getName();
+                return priority.name().toLowerCase();
             }
         }
         throw new IllegalArgumentException("Unable to set defined priority");
@@ -20,7 +20,7 @@ public class PriorityConverter implements AttributeConverter<Priority, String> {
     @Override
     public Priority convertToEntityAttribute(String dbData) {
         for (Priority priority : Priority.values()) {
-            if (priority.getName().equalsIgnoreCase(dbData)) {
+            if (priority.name().equalsIgnoreCase(dbData)) {
                 return priority;
             }
         }

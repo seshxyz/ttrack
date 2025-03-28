@@ -11,7 +11,7 @@ public class StatusConverter implements AttributeConverter<TaskStatus, String> {
     public String convertToDatabaseColumn(TaskStatus attribute) {
         for (TaskStatus status : TaskStatus.values()) {
             if (attribute.equals(status)) {
-                return status.getName();
+                return status.name().toLowerCase();
             }
         }
         throw new IllegalArgumentException("Unable to set defined status");
@@ -20,7 +20,7 @@ public class StatusConverter implements AttributeConverter<TaskStatus, String> {
     @Override
     public TaskStatus convertToEntityAttribute(String dbData) {
         for (TaskStatus status : TaskStatus.values()) {
-            if (status.getName().equalsIgnoreCase(dbData)) {
+            if (status.name().equalsIgnoreCase(dbData)) {
                 return status;
             }
         }

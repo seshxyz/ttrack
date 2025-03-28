@@ -11,7 +11,7 @@ public class StateConverter implements AttributeConverter<TaskState, String> {
     public String convertToDatabaseColumn(TaskState attribute) {
         for (TaskState state : TaskState.values()) {
             if (attribute.equals(state)) {
-                return state.getName();
+                return state.name().toLowerCase();
             }
         }
         throw new IllegalArgumentException("Unable to set defined state");
@@ -20,7 +20,7 @@ public class StateConverter implements AttributeConverter<TaskState, String> {
     @Override
     public TaskState convertToEntityAttribute(String dbData) {
         for (TaskState state : TaskState.values()) {
-            if (state.getName().equalsIgnoreCase(dbData)) {
+            if (state.name().equalsIgnoreCase(dbData)) {
                 return state;
             }
         }

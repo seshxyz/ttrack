@@ -16,6 +16,10 @@ spring:
     common-messages: messages.properties
   liquibase:
     enabled: false
+springdoc:
+  default-produces-media-type: application/json
+  swagger-ui:
+    path: /swagger-ui
 
 logging:
   config: classpath:log4j2-config.xml

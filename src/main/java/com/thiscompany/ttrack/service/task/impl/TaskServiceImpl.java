@@ -6,30 +6,49 @@ import com.thiscompany.ttrack.controller.payload.TaskUpdateRequest;
 import com.thiscompany.ttrack.enums.Priority;
 import com.thiscompany.ttrack.enums.TaskState;
 import com.thiscompany.ttrack.enums.TaskStatus;
-import com.thiscompany.ttrack.enums.converter.EnumMapper;
+import com.thiscompany.ttrack.enums.mapper.EnumMapper;
 import com.thiscompany.ttrack.exceptions.TaskNotFoundException;
 import com.thiscompany.ttrack.model.Task;
 import com.thiscompany.ttrack.repository.TaskRepository;
+import com.thiscompany.ttrack.service.task.AbstractTaskFinder;
 import com.thiscompany.ttrack.service.task.TaskService;
 import com.thiscompany.ttrack.service.task.mapper.TaskMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class TaskServiceImpl implements TaskService {
+public class TaskServiceImpl extends AbstractTaskFinder implements TaskService {
 
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepo;
+
+    public TaskServiceImpl(TaskRepository taskRepo, TaskMapper taskMapper) {
+        super(taskRepo);
+        this.taskMapper = taskMapper;
+        this.taskRepo = taskRepo;
+    }
 
     @Transactional
     @Override
     public TaskResponse createTask(NewTaskRequest request) {
         Task task = taskMapper.requestToEntity(request);
-        setStatusAndState(task, request.status());
+        flexibleSetStatusAndState(task, request.status());
+        setTaskPriority(task, request.priority());
+        taskRepo.save(task);
+        log.info("Obj created with id {}", task.getId());
+        return taskMapper.entityToResponse(task);
+    }
+
+    @Transactional
+    @Override
+    public TaskResponse createDraftTask(NewTaskRequest request) {
+        Task task = taskMapper.requestToEntity(request);
+        task.setStatus(TaskStatus.DRAFT);
+        task.setState(TaskState.INITIAL);
         setTaskPriority(task, request.priority());
         taskRepo.save(task);
         log.info("Obj created with id {}", task.getId());
@@ -38,16 +57,22 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponse getTask(Long id) {
-        Task task = taskRepo.findTaskById(id)
-                .orElseThrow(()-> new TaskNotFoundException(id));
+        Task task = findTaskById(id);
         return taskMapper.entityToResponse(task);
+    }
+
+    @Override
+    public List<TaskResponse> getAllTask() {
+        return findAllTasks()
+                .stream()
+                .map(taskMapper::entityToResponse)
+                .toList();
     }
 
     @Transactional
     @Override
     public TaskResponse updateTask(Long id, TaskUpdateRequest updateRequest) {
-        Task taskToUpdate = taskRepo.findTaskById(id)
-                .orElseThrow(()->new TaskNotFoundException(id));
+        Task taskToUpdate = findTaskById(id);
         taskMapper.patchEntity(updateRequest, taskToUpdate);
         taskRepo.save(taskToUpdate);
         log.info("Obj with id {} updated, [payload: {}]", id, taskToUpdate.toString());
@@ -64,9 +89,9 @@ public class TaskServiceImpl implements TaskService {
         else throw new TaskNotFoundException(id);
     }
 
-    private void setStatusAndState(Task task, String status) {
-        if (status == null) {
-            task.setStatus(TaskStatus.IN_PROGRESS);
+    private void flexibleSetStatusAndState(Task task, String status) {
+        if (status == null || status.equalsIgnoreCase("ongoing")) {
+            task.setStatus(TaskStatus.ONGOING);
             task.setState(TaskState.ACTIVE);
         }
         else if (status.equalsIgnoreCase("draft")) {
@@ -82,4 +107,5 @@ public class TaskServiceImpl implements TaskService {
         }
         else task.setPriority(EnumMapper.mapToPriority(priority));
     }
+
 }
