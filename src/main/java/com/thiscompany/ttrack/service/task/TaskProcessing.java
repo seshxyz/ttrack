@@ -4,8 +4,8 @@ import org.springframework.http.ResponseEntity;
 
 public interface TaskProcessing {
 
-    ResponseEntity<?> promoteTask(Long id);
+    ResponseEntity<?> promoteTask(String id, String requestUser);
 
-    ResponseEntity<?> cancelTask(Long id);
+    ResponseEntity<?> cancelTask(String id, String requestUser);
 
 }

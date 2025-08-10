@@ -2,98 +2,104 @@ package com.thiscompany.ttrack.service.task.impl;
 
 import com.thiscompany.ttrack.enums.TaskState;
 import com.thiscompany.ttrack.enums.TaskStatus;
+import com.thiscompany.ttrack.exceptions.TaskNotFoundException;
 import com.thiscompany.ttrack.model.Task;
 import com.thiscompany.ttrack.repository.TaskRepository;
-import com.thiscompany.ttrack.service.task.AbstractTaskFinder;
+import com.thiscompany.ttrack.repository.specification.CustomSpecification;
 import com.thiscompany.ttrack.service.task.TaskProcessing;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
+import static com.thiscompany.ttrack.enums.TaskStatus.COMPLETED;
 
-@Slf4j
 @Service
-public class TaskProcessingImpl extends AbstractTaskFinder implements TaskProcessing {
+@RequiredArgsConstructor
+public class TaskProcessingImpl implements TaskProcessing {
+
+    private final Logger logger = LoggerFactory.getLogger(TaskProcessingImpl.class);
 
     private final TaskRepository taskRepo;
 
-    public TaskProcessingImpl(TaskRepository taskRepo) {
-        super(taskRepo);
-        this.taskRepo = taskRepo;
-    }
-
     @Transactional
     @Override
-    public ResponseEntity<?> promoteTask(Long id) {
-        Task task = findTaskById(id);
-        final int statusIndex = task.getStatus().ordinal();
-        boolean statusChanged = false;
-        if(task.getStatus().equals(TaskStatus.COMPLETED) || task.getStatus().equals(TaskStatus.CANCELED)) {
-            return response(id, task.getStatus(), statusChanged);
+    public ResponseEntity<?> promoteTask(String id, String requestUser) {
+        Task task = findById(id, requestUser);
+        TaskStatus currentStatus = task.getStatus();
+        boolean isStatusChanged = false;
+        if(isCompletedOrCanceled(currentStatus)) {
+            return response(id, currentStatus, isStatusChanged);
         }
         else {
-            List<TaskStatus> statusList = Arrays.asList(Arrays.copyOfRange(
-                    TaskStatus.values(),
-                    0,
-                    TaskStatus.values().length
-            ));
-            task.setStatus(statusList.get(statusIndex + 1));
-            statusChanged = true;
+            task.setStatus(currentStatus.getNextFrom(currentStatus));
+            isStatusChanged = true;
             task.setCompleted(completeIfFinal(task.getStatus()));
-            task.setState(setInactiveIfFinal(task.getState(), task.getCompleted()));
+            task.setState(setInactiveIfFinal(task.getState(), task.isCompleted()));
             taskRepo.saveAndFlush(task);
-            return response(id, task.getStatus(), statusChanged);
+            return response(id, task.getStatus(), isStatusChanged);
         }
     }
 
     @Transactional
     @Override
-    public ResponseEntity<?> cancelTask(Long id) {
-        Task task = findTaskById(id);
-        boolean statusChanged = false;
+    public ResponseEntity<?> cancelTask(String id, String requestUser) {
+        Task task = findById(id, requestUser);
+        boolean isStatusChanged = false;
         if(!task.getStatus().equals(TaskStatus.CANCELED)){
             task.setStatus(TaskStatus.CANCELED);
-            statusChanged = true;
+            isStatusChanged = true;
             task.setState(TaskState.INACTIVE);
-            return response(id, task.getStatus(), statusChanged);
+            return response(id, task.getStatus(), isStatusChanged);
         }
-        return response(id, task.getStatus(), statusChanged);
+        return response(id, task.getStatus(), isStatusChanged);
     }
 
     private boolean completeIfFinal(TaskStatus status) {
-        return status.equals(TaskStatus.COMPLETED);
+        return status.equals(COMPLETED);
     }
 
-    private TaskState setInactiveIfFinal(TaskState state, boolean completed){
-        if(completed) return TaskState.INACTIVE;
+    private boolean isCompletedOrCanceled(TaskStatus status) {
+        return status.equals(COMPLETED) || status.equals(TaskStatus.CANCELED);
+    }
+
+    private TaskState setInactiveIfFinal(TaskState state, boolean isCompleted){
+        if(isCompleted) return TaskState.INACTIVE;
         else return state;
     }
 
-    private ResponseEntity<?> response(Long id, TaskStatus status, boolean statusChanged) {
-        if((status.equals(TaskStatus.COMPLETED)
-                || status.equals(TaskStatus.CANCELED)) && !statusChanged) {
+    private ResponseEntity<?> response(String id, TaskStatus status, boolean isStatusChanged) {
+        if(isCompletedOrCanceled(status) && !isStatusChanged) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body("Task already completed or canceled");
         }
-        if(statusChanged) {
-            if(status.equals(TaskStatus.COMPLETED)) {
-                return ResponseEntity.ok("Task has been completed");
-            } else if(status.equals(TaskStatus.CANCELED)) {
-                return ResponseEntity.ok("Task has been canceled");
-            }
-            else return ResponseEntity.ok("Task promoted further. Current status: " + status);
+        else if(isStatusChanged) {
+           return switch (status) {
+                case COMPLETED -> ResponseEntity.ok("Task has been completed");
+                case CANCELED -> ResponseEntity.ok("Task has been canceled");
+                default -> ResponseEntity.ok("Task promoted further. Current status: " + status);
+            };
         }
-        log.error(
-                "Problem while building response. Payload: task_id: {}, status: {}, statusChanged: {}",
-                id, status, statusChanged
+        logger.error(
+                "Problem while building response. Payload: task_id: {}, status: {}, isStatusChanged: {}",
+                id, status, isStatusChanged
         );
         return ResponseEntity.badRequest().build();
     }
 
+    private Task findById(String id, String requestUser) {
+        Specification<Task> spec = CustomSpecification.filterByUserAndParam(
+                requestUser,
+                root -> root.get("id"),
+                id
+        );
+        return taskRepo.findOne(spec)
+                .orElseThrow(()->new TaskNotFoundException(id));
+    }
 
 }

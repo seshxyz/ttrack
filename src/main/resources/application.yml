@@ -1,21 +1,72 @@
 server:
-  port: 8080
   servlet:
     application-display-name: 2track
+  port: 8080
 
 spring:
-  config:
-    import: file:src/main/resources/secret.yml
   application:
     name: 2track
-    version: 0.1
+    version: 1.0.0
+
+  config:
+    import: file:src/main/resources/secret.yml
+  datasource:
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}?reWriteBatchedInserts=true
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate
+    properties:
+      enable_lazy_load_no_trans: true
+    show-sql: false
+    open-in-view: on
   messages:
     common-messages: messages.properties
+
   liquibase:
     enabled: false
+    user: ${LIQUIBASE_USER}
+    password: ${LIQUIBASE_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}?applicationName=2track_app
+
+  web:
+    locale: en_US
+    locale-resolver: fixed
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration,org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+
+  kafka:
+    bootstrap-servers: localhost:8093, localhost:8095, localhost:8097
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.thiscompany.ttrack.controller.user.dto
+    consumer:
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: com.thiscompany.ttrack.controller.user.dto
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      group-id: 2track_events
+    client-id: 2track_app
+    listener:
+      concurrency: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,beans,startup
+
 springdoc:
   default-produces-media-type: application/json
   swagger-ui:
@@ -23,3 +74,16 @@ springdoc:
 
 logging:
   config: classpath:log4j2-config.xml
+info:
+  application:
+    version: 1.0.0
+
+app:
+  jwt:
+    encrypt-key: ${APP.ENCRYPT_KEY}
+    secret-key: ${APP.SIGNING_KEY}
+    issuer: 2track
+    token-lifetime: 30
+  kafka:
+    topic: "auth-event"
+    group-id: "auth-group"

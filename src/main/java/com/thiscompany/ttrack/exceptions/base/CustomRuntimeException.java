@@ -13,6 +13,6 @@ public class CustomRuntimeException extends RuntimeException {
         super(message);
         this.httpStatus = status;
         this.args = args;
-    };
+    }
 
 }

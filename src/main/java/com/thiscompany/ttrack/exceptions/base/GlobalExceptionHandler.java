@@ -3,6 +3,7 @@ package com.thiscompany.ttrack.exceptions.base;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(
                 status,
                 Objects.requireNonNull(
-                        messageSource.getMessage(status.toString(), args, messageKey, Locale.ENGLISH)
+                        messageSource.getMessage(messageKey, args, "error", LocaleContextHolder.getLocale())
                 )
         );
     }
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
             HttpStatus status, String messageKey,
             Object[] args, Locale locale
     ) {
-        var problemDetail = buildProblemDetail(status, messageKey, args, Locale.ENGLISH);
+        var problemDetail = buildProblemDetail(status, messageKey, args, LocaleContextHolder.getLocale());
         return ResponseEntity.status(status).body(problemDetail);
     }
 
@@ -48,7 +49,7 @@ public class GlobalExceptionHandler {
                 ex.getHttpStatus(),
                 ex.getMessage(),
                 ex.getArgs(),
-                Locale.ENGLISH
+                LocaleContextHolder.getLocale()
         );
     }
 
@@ -58,7 +59,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 "error.400",
                 new Object[0],
-                Locale.ENGLISH
+                LocaleContextHolder.getLocale()
         );
 
         problemdetail.setProperty("errors", ex.getAllErrors()
@@ -78,7 +79,8 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 "error.400",
                 new Object[] {exception.getMessage()},
-                Locale.ENGLISH
+                LocaleContextHolder.getLocale()
         );
     }
+
 }

@@ -1,8 +1,9 @@
 package com.thiscompany.ttrack.service.task;
 
-import com.thiscompany.ttrack.controller.payload.NewTaskRequest;
-import com.thiscompany.ttrack.controller.payload.TaskResponse;
-import com.thiscompany.ttrack.controller.payload.TaskUpdateRequest;
+import com.thiscompany.ttrack.controller.task.dto.NewTaskRequest;
+import com.thiscompany.ttrack.controller.task.dto.TaskRequest;
+import com.thiscompany.ttrack.controller.task.dto.TaskResponse;
+import com.thiscompany.ttrack.controller.task.dto.TaskUpdateRequest;
 
 import java.util.List;
 
@@ -12,12 +13,14 @@ public interface TaskService {
 
     TaskResponse createDraftTask(NewTaskRequest request);
 
-    TaskResponse getTask(Long id);
+    TaskResponse findTaskById(TaskRequest request, String requestUser);
 
-    List<TaskResponse> getAllTask();
+    List<TaskResponse> findAllUserTasks(String requestUser);
 
-    TaskResponse updateTask(Long id, TaskUpdateRequest request);
+    List<TaskResponse> findAllUserActiveTasks(String requestUser);
 
-    void deleteTask(Long id);
+    TaskResponse updateTask(String id, TaskUpdateRequest request, String requestUser);
+
+    void deleteTask(String id, String requestUser);
 
 }

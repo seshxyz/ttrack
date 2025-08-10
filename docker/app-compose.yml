@@ -1,0 +1,22 @@
+version: "2.39"
+
+services:
+  application:
+    build:
+      context: ../
+      dockerfile: ./docker/app.dockerfile
+    container_name: 2track_app
+    restart: unless-stopped
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+      database:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - backend

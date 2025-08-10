@@ -1,0 +1,6 @@
+kafka:
+  clusters:
+    - name: kraft-cluster
+      bootstrapServers: kafka-broker-1:8092,kafka-broker-2:8094,kafka-broker-3:8096
+      properties:
+        security.protocol: PLAINTEXT

@@ -4,7 +4,7 @@ import com.thiscompany.ttrack.exceptions.base.NotFoundException;
 
 public class TaskNotFoundException extends NotFoundException {
 
-    public TaskNotFoundException(Long id) {
+    public TaskNotFoundException(String id) {
         super("task.not.found", new Object[]{id});
     }
 
