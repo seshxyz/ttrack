@@ -18,7 +18,7 @@ unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
     @Mappings({
-            @Mapping(target= "permissions", source = "permissions", qualifiedByName = "mapFromPermissionsToStringList"),
+            @Mapping(target= "permissions", source = "permissions", qualifiedByName = "mapFromPermissionsToStringSet"),
     } )
     UserResponse entityToResponse(User user);
 

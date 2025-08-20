@@ -5,18 +5,21 @@ services:
     build:
       context: ../
       dockerfile: ./docker/app.dockerfile
+      args:
+        APP_NAME: ${APP_NAME}
+        APP_VERSION: ${APP_VERSION}
     container_name: 2track_app
     restart: unless-stopped
+    ports:
+      - "8081:8081"
     depends_on:
-      liquibase:
-        condition: service_completed_successfully
       database:
         condition: service_healthy
+      liquibase:
+        condition: service_completed_successfully
     env_file:
       - .env
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ../src/main/resources/secrets:/secrets
     networks:
       - backend

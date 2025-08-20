@@ -7,10 +7,8 @@ services:
     image: postgres:16
     container_name: ${POSTGRES_CONTAINER_NAME}
     restart: on-failure
-    mem_limit: "5g"
+    mem_limit: "4g"
     cpu_count: 3
-    env_file:
-      - .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -19,8 +17,6 @@ services:
       - postgresql:/etc/postgresql/data
       - ../migrations/db/db-init_p.sql:/docker-entrypoint-initdb.d/db-init_p.sql
       - ../datasets/:/tmp/
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 3s
@@ -30,13 +26,11 @@ services:
 
   liquibase:
     image: liquibase/liquibase:4.25
-    container_name: liquibase_db1
+    container_name: liquibase_db
     restart: on-failure
     depends_on:
       database:
         condition: service_healthy
-    env_file:
-      - .env
     command:
       - --changelog-file=db.changelog.yml
       - --driver=org.postgresql.Driver
@@ -49,28 +43,28 @@ services:
     networks:
       - backend
 
-  kafka-main-broker-1:
+  kafka-broker-1:
     image: &kafka bitnami/kafka:latest
-    container_name: kafka-main-broker-1
-    mem_limit: "500m"
+    container_name: kafka-broker-1
+    mem_limit: "700m"
     ports:
-      - "8093:8093"
+      - "8092:8092"
     environment:
       KAFKA_CFG_NODE_ID: 1
       KAFKA_KRAFT_CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_CFG_PROCESS_ROLES: controller,broker
-      KAFKA_CFG_LISTENERS: CONTROLLER://:8091,PLAINTEXT://:8092,EXTERNAL://:8093
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-main-broker-1:8092,EXTERNAL://localhost:8093 #PLAINTEXT://kafka-main-broker-1:8092
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_LISTENERS: CONTROLLER://0.0.0.0:8091,PLAINTEXT://0.0.0.0:8092
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-1:8092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-main-broker-1:8091
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-broker-1:8091
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CFG_NUM_PARTITIONS: 3
     volumes:
       - kafka-1-data:/bitnami/kafka
     healthcheck:
-      test: [ "CMD", "kafka-topics.sh", "--bootstrap-server=kafka-main-broker-1:8091", "--list" ]
+      test: [ "CMD", "kafka-topics.sh", "--bootstrap-server=kafka-broker-1:8092", "--list" ]
       start_period: 15s
       interval: 10s
       retries: 2
@@ -80,26 +74,23 @@ services:
   kafka-broker-2:
     image: *kafka
     container_name: kafka-broker-2
-    mem_limit: "500m"
     ports:
-      - "8095:8095"
+      - "8094:8094"
+    mem_limit: "700m"
     environment:
       KAFKA_CFG_NODE_ID: 2
       KAFKA_KRAFT_CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_CFG_PROCESS_ROLES: broker
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:8094,EXTERNAL://:8095
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-2:8094,EXTERNAL://localhost:8095
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_LISTENERS: PLAINTEXT://kafka-broker-2:8094
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-2:8094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-main-broker-1:8091
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-broker-1:8091
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CFG_NUM_PARTITIONS: 3
     volumes:
       - kafka-2-data:/bitnami/kafka
-    depends_on:
-      kafka-main-broker-1:
-        condition: service_healthy
     healthcheck:
       test: [ "CMD", "kafka-topics.sh", "--bootstrap-server=kafka-broker-2:8094", "--list" ]
       start_period: 15s
@@ -111,26 +102,23 @@ services:
   kafka-broker-3:
     image: *kafka
     container_name: kafka-broker-3
-    mem_limit: "500m"
     ports:
-      - "8097:8097"
+      - "8096:8096"
+    mem_limit: "700m"
     environment:
       KAFKA_CFG_NODE_ID: 3
       KAFKA_KRAFT_CLUSTER_ID: ${KAFKA_CLUSTER_ID}
       KAFKA_CFG_PROCESS_ROLES: broker
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:8096,EXTERNAL://:8097
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-3:8096,EXTERNAL://localhost:8097
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_LISTENERS: PLAINTEXT://kafka-broker-3:8096
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-3:8096
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-main-broker-1:8091
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-broker-1:8091
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_NUM_PARTITIONS: 3
     volumes:
       - kafka-3-data:/bitnami/kafka
-    depends_on:
-      kafka-main-broker-1:
-        condition: service_healthy
     healthcheck:
       test: [ "CMD", "kafka-topics.sh", "--bootstrap-server=kafka-broker-3:8096", "--list" ]
       start_period: 15s
@@ -147,7 +135,7 @@ services:
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
     volumes:
-      - ./config.yml:/etc/kafkaui/dynamic_config.yaml
+      - ./kafka_ui-config.yml:/etc/kafkaui/dynamic_config.yaml
     networks:
       - backend
 

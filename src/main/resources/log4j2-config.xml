@@ -23,16 +23,14 @@
         </Root>
         <Logger name="sun.rmi" level="INFO"/>
         <Logger name="javax.management" level="INFO"/>
-        <Logger name="com.sun" level="INFO"/>
         <Logger name="com.zaxxer" level="WARN"/>
         <Logger name="org.apache" level="WARN"/>
         <Logger name="org.postgresql" level="WARN"/>
-        <Logger name="org.springframework" level="WARN"/>
-        <Logger name="org.springframework.cache" level="WARN"/>
         <Logger name="org.springframework.security" level="INFO"/>
         <Logger name="org.springframework.web" level="INFO"/>
-        <Logger name="org.hibernate" level="OFF"/>
-        <Logger name="org.springframework.boot.context" level="INFO"/>
+        <Logger name="org.springframework.data.jpa" level="INFO"/>
+        <Logger name="org.hibernate" level="INFO"/>
+        <Logger name="org.springframework.kafka" level="INFO"/>
     </Loggers>
 
 </Configuration>

@@ -1,15 +1,21 @@
 server:
   servlet:
     application-display-name: 2track
-  port: 8080
+  port: 8081
 
 spring:
+  main:
+    banner-mode: off
   application:
     name: 2track
     version: 1.0.0
 
   config:
-    import: file:src/main/resources/secret.yml
+    import: classpath:secrets/secret.yml
+  profiles:
+    active: local,standalone
+    default: local
+
   datasource:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
@@ -27,9 +33,9 @@ spring:
 
   liquibase:
     enabled: false
-    user: ${LIQUIBASE_USER}
-    password: ${LIQUIBASE_PASSWORD}
-    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}?applicationName=2track_app
+#    user: ${LIQUIBASE_USER}
+#    password: ${LIQUIBASE_PASSWORD}
+#    url: jdbc:postgresql://${POSTGRES_CONTAINER_NAME}:5432/${POSTGRES_DB}?applicationName=2track
 
   web:
     locale: en_US
@@ -56,8 +62,8 @@ spring:
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      group-id: 2track_events
-    client-id: 2track_app
+      group-id: ${app.kafka.group-id}
+    client-id: 2track
     listener:
       concurrency: 3
 
@@ -83,7 +89,7 @@ app:
     encrypt-key: ${APP.ENCRYPT_KEY}
     secret-key: ${APP.SIGNING_KEY}
     issuer: 2track
-    token-lifetime: 30
+    token-lifetime: 45
   kafka:
     topic: "auth-event"
-    group-id: "auth-group"
+    group-id: "2track_events"

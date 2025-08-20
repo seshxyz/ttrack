@@ -4,15 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 docker/.env
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+/TODO
+/src/main/resources/secrets/
 
 ### IntelliJ IDEA ###
 .idea
@@ -20,18 +13,4 @@ docker/.env
 *.iml
 *.ipr
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
-/src/main/resources/secret.yml
-/TODO

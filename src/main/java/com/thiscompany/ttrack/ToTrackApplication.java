@@ -6,6 +6,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+import java.util.TimeZone;
+
 
 @SpringBootApplication
 @EnableConfigurationProperties({AppConfig.class, JwtProperties.class})
@@ -13,6 +15,7 @@ public class ToTrackApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ToTrackApplication.class, args);
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+3:00"));
     }
 
 }

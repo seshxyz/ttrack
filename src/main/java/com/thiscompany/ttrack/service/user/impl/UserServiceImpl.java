@@ -44,14 +44,14 @@ public class UserServiceImpl implements UserService {
         return userMapper.entityToResponse(newUser);
     }
 
-    @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public UserResponse findByName(String username) {
         return findUserByName(username);
     }
 
-    @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public UserResponse findById(String id) {
         return userRepo.findById(id)
                 .map(userMapper::entityToResponse)

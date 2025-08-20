@@ -55,7 +55,7 @@ public class Task extends Auditable implements IdGeneration {
 
     @Override
     public String generateId() {
-        return this.getClass().getSimpleName().substring(0,0) + this.hashCode();
+        return this.getClass().getSimpleName().replace("Task","t_") + this.hashCode();
     }
 
 }

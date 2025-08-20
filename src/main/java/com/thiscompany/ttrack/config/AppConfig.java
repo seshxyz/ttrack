@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 
 @Configuration
@@ -60,11 +59,6 @@ public class AppConfig {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return objectMapper;
-    }
-
-    @Bean
-    public DateTimeFormatter dateTimeFormatter() {
-        return DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSS");
     }
 
 }
