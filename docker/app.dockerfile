@@ -6,9 +6,8 @@ COPY pom.xml .
 RUN mvn dependency:go-offline
 
 COPY ./src ./src
-
 RUN mvn -B -e clean package -DskipTests
-ARG BBB=1
+
 FROM eclipse-temurin:21-jre-alpine
 
 ARG APP_NAME

@@ -7,13 +7,17 @@ import com.thiscompany.ttrack.model.auditable.Auditable;
 import com.thiscompany.ttrack.model.identifier_generation.strategy.IdGeneration;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.Objects;
 
 
 @SuppressWarnings("deprecation")
 @Builder
 @Entity @Getter @Setter
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "tasks")
@@ -49,13 +53,30 @@ public class Task extends Auditable implements IdGeneration {
     private boolean isCompleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner", referencedColumnName = "username", updatable = false, nullable = false)
+    @JoinColumn(
+        name = "owner", referencedColumnName = "username",
+        updatable = false, nullable = false
+    )
     @EqualsAndHashCode.Include
     private User owner;
 
     @Override
     public String generateId() {
-        return this.getClass().getSimpleName().replace("Task","t_") + this.hashCode();
+        return "t" + Math.abs(Objects.hash(id, owner));
+    }
+
+    public Task setStatus(TaskStatus status) {
+        this.status = status;
+        return this;
+    }
+
+    public Task setState(TaskState state) {
+        this.state = state;
+        return this;
+    }
+
+    public boolean getIsCompleted() {
+        return isCompleted;
     }
 
 }

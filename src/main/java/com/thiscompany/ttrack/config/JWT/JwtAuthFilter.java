@@ -1,7 +1,7 @@
 package com.thiscompany.ttrack.config.JWT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thiscompany.ttrack.exceptions.UserNotFoundException;
+import com.thiscompany.ttrack.exceptions.not_found.UserNotFoundException;
 import com.thiscompany.ttrack.model.User;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -83,7 +83,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     ) throws IOException {
         var problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNAUTHORIZED,
-                Objects.requireNonNull(messageSource.getMessage(detail, new Object[]{args}, "error", LocaleContextHolder.getLocale()))
+                Objects.requireNonNull(messageSource.getMessage(detail, new Object[]{args}, "error.401", LocaleContextHolder.getLocale()))
         );
         problemDetail.setInstance(URI.create(request.getRequestURI()));
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);

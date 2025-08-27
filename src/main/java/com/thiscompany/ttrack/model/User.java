@@ -3,6 +3,7 @@ package com.thiscompany.ttrack.model;
 import com.thiscompany.ttrack.model.identifier_generation.strategy.IdGeneration;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,11 +12,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("deprecation")
 @Entity @Getter @Setter
+@Accessors(chain = true)
 @Table(name = "users")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,7 +31,10 @@ import java.util.stream.Collectors;
 public class User implements UserDetails, IdGeneration {
 
     @Id
-    @GenericGenerator(name = "custom-userId", strategy = "com.thiscompany.ttrack.model.identifier_generation.CustomIdGenerator")
+    @GenericGenerator(
+        name = "custom-userId",
+        strategy = "com.thiscompany.ttrack.model.identifier_generation.CustomIdGenerator"
+    )
     @GeneratedValue(generator = "custom-userId")
     @Column(updatable = false)
     @EqualsAndHashCode.Include
@@ -62,12 +68,16 @@ public class User implements UserDetails, IdGeneration {
         return isActive;
     }
 
-    @OneToMany(mappedBy = "user_name", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.LAZY)
+    @OneToMany(
+        mappedBy = "user_name",
+        cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+        fetch = FetchType.LAZY
+    )
     private Set<UserPermission> permissions = new HashSet<>();
 
     @Override
     public String generateId() {
-        return this.getClass().getSimpleName().replace("User", "usr_") + this.hashCode();
+        return "usr-" + Objects.hash(id, username);
     }
 
 }

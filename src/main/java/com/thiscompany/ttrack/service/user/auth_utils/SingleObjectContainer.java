@@ -3,7 +3,7 @@ package com.thiscompany.ttrack.service.user.auth_utils;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-public class SingleObjectContainer<T, E extends Collection<T>> {
+public class SingleObjectContainer<E extends Collection<?>> {
 
     private final Supplier<E> factory;
     private E object;

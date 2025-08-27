@@ -29,7 +29,7 @@
         <Logger name="org.springframework.security" level="INFO"/>
         <Logger name="org.springframework.web" level="INFO"/>
         <Logger name="org.springframework.data.jpa" level="INFO"/>
-        <Logger name="org.hibernate" level="INFO"/>
+        <Logger name="org.hibernate" level="WARN"/>
         <Logger name="org.springframework.kafka" level="INFO"/>
     </Loggers>
 

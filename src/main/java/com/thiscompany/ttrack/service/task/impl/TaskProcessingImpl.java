@@ -2,10 +2,10 @@ package com.thiscompany.ttrack.service.task.impl;
 
 import com.thiscompany.ttrack.enums.TaskState;
 import com.thiscompany.ttrack.enums.TaskStatus;
-import com.thiscompany.ttrack.exceptions.TaskNotFoundException;
+import com.thiscompany.ttrack.exceptions.not_found.TaskNotFoundException;
 import com.thiscompany.ttrack.model.Task;
 import com.thiscompany.ttrack.repository.TaskRepository;
-import com.thiscompany.ttrack.repository.specification.CustomSpecification;
+import com.thiscompany.ttrack.repository.specification.CustomSpecifications;
 import com.thiscompany.ttrack.service.task.TaskProcessing;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -38,9 +38,11 @@ public class TaskProcessingImpl implements TaskProcessing {
         else {
             task.setStatus(currentStatus.getNextFrom(currentStatus));
             isStatusChanged = true;
-            task.setCompleted(completeIfFinal(task.getStatus()));
-            task.setState(setInactiveIfFinal(task.getState(), task.isCompleted()));
-            taskRepo.saveAndFlush(task);
+            task.setCompleted(completeIfFinal(task.getStatus()))
+                .setState(
+                    setInactiveIfFinal(task.getState(), task.getIsCompleted())
+                );
+            taskRepo.save(task);
             return response(id, task.getStatus(), isStatusChanged);
         }
     }
@@ -51,9 +53,9 @@ public class TaskProcessingImpl implements TaskProcessing {
         Task task = findById(id, requestUser);
         boolean isStatusChanged = false;
         if(!task.getStatus().equals(TaskStatus.CANCELED)){
-            task.setStatus(TaskStatus.CANCELED);
+            task.setStatus(TaskStatus.CANCELED)
+                .setState(TaskState.INACTIVE);
             isStatusChanged = true;
-            task.setState(TaskState.INACTIVE);
             return response(id, task.getStatus(), isStatusChanged);
         }
         return response(id, task.getStatus(), isStatusChanged);
@@ -93,7 +95,7 @@ public class TaskProcessingImpl implements TaskProcessing {
     }
 
     private Task findById(String id, String requestUser) {
-        Specification<Task> spec = CustomSpecification.filterByUserAndParam(
+        Specification<Task> spec = CustomSpecifications.filterByUserAndParam(
                 requestUser,
                 root -> root.get("id"),
                 id

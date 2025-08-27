@@ -1,4 +1,4 @@
-package com.thiscompany.ttrack.exceptions;
+package com.thiscompany.ttrack.exceptions.not_found;
 
 import com.thiscompany.ttrack.exceptions.base.NotFoundException;
 

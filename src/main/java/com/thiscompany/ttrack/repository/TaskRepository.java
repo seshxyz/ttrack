@@ -1,6 +1,8 @@
 package com.thiscompany.ttrack.repository;
 
 import com.thiscompany.ttrack.model.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +27,5 @@ public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecific
     @Override
     boolean exists(Specification<Task> spec);
 
+    Page<Task> findAll(Specification<Task> spec, Pageable pageable);
 }

@@ -16,15 +16,14 @@ import org.mapstruct.*;
 public interface TaskMapper {
 
     @Mappings({
-            @Mapping(source = "status", target = "status", qualifiedByName = "mapToStatus"),
             @Mapping(source = "priority", target = "priority", qualifiedByName = "mapToPriority")
     })
     Task requestToEntity(NewTaskRequest request);
 
     @Mappings({
-            @Mapping(source = "status", target = "status", qualifiedByName = "mapFromStatus"),
             @Mapping(source = "priority", target = "priority", qualifiedByName = "mapFromPriority"),
-            @Mapping(source = "state", target = "state", qualifiedByName = "mapFromState")
+            @Mapping(source = "state", target = "state", qualifiedByName = "mapFromState"),
+            @Mapping(source = "isCompleted", target = "isCompleted")
     })
     TaskResponse entityToResponse(Task task);
 

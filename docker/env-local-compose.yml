@@ -1,6 +1,4 @@
 version: "2.39"
-include:
-  - app-compose.yml
 
 services:
   database:

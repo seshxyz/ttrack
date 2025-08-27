@@ -3,7 +3,7 @@ package com.thiscompany.ttrack.service.user.impl;
 import com.thiscompany.ttrack.controller.user.dto.UserCreationRequest;
 import com.thiscompany.ttrack.controller.user.dto.UserResponse;
 import com.thiscompany.ttrack.controller.user.dto.UserUpdateRequest;
-import com.thiscompany.ttrack.exceptions.UserNotFoundException;
+import com.thiscompany.ttrack.exceptions.not_found.UserNotFoundException;
 import com.thiscompany.ttrack.model.Permission;
 import com.thiscompany.ttrack.model.User;
 import com.thiscompany.ttrack.model.UserPermission;
@@ -37,8 +37,8 @@ public class UserServiceImpl implements UserService {
         User newUser = userMapper.createRequestToEntity(request, passwordEncoder);
         UserPermission userPermission = new UserPermission();
         Permission permission = permissionRepo.findPermissionById(Constants.DEFAULT_PERMISSION_ID);
-        userPermission.setUser_name(newUser);
-        userPermission.setPermission(permission);
+        userPermission.setUser_name(newUser)
+                      .setPermission(permission);
         newUser.setPermissions(Set.of(userPermission));
         userRepo.save(newUser);
         return userMapper.entityToResponse(newUser);

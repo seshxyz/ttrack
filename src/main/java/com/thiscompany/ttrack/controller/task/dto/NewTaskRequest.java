@@ -13,8 +13,7 @@ public record NewTaskRequest(
         @Size(max = 540, message = "field.details_are_long")
         String details,
 
-        String status,
-
+        @Nullable
         String priority
 
 ) {

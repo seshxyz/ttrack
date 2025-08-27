@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,8 +30,7 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "Register user", description = "Method to register a new user")
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/register/2")
+    @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserCreationRequest request) {
         authService.register(request);
         return new ResponseEntity<>(

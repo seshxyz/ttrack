@@ -41,7 +41,7 @@ public class MapperUtils {
             Stream.of(SystemAuthority.values())
                     .collect(Collectors.toUnmodifiableMap(
                             name -> name.name().toLowerCase(LocaleContextHolder.getLocale()),
-                            state -> state)
+                            authority -> authority)
                     );
 
     @Named("mapToPriority")

@@ -1,6 +1,6 @@
 package com.thiscompany.ttrack.config;
 
-import com.thiscompany.ttrack.exceptions.UserNotFoundException;
+import com.thiscompany.ttrack.exceptions.not_found.UserNotFoundException;
 import com.thiscompany.ttrack.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
