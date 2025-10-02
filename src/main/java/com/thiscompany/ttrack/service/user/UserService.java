@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface UserService {
-
-    UserResponse createUser(UserCreationRequest request);
-
-    UserResponse findByName(String username);
-
-    UserResponse findById(String id);
-
-    UserResponse updateUser(UserUpdateRequest request);
-
-    void deleteUser(String username);
-
+	
+	UserResponse createUser(UserCreationRequest request);
+	
+	UserResponse findByName(String username);
+	
+	UserResponse findById(String id);
+	
+	UserResponse updateUser(UserUpdateRequest request);
+	
+	void deleteUser(String username);
+	
 }

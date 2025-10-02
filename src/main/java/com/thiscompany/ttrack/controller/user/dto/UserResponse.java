@@ -8,18 +8,17 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public record UserResponse(
+	
+	String id,
+	
+	@JsonView(DtosViews.UserBaseView.class)
+	String username,
+	
+	boolean isActive,
+	
+	@JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+	LocalDateTime lastLogin,
+	
+	Set<String> permissions
 
-        String id,
-
-        @JsonView(DtosViews.UserBaseView.class)
-        String username,
-
-        boolean isActive,
-
-        @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-        LocalDateTime lastLogin,
-
-        Set<String> permissions
-
-) {
-}
+) {}

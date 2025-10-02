@@ -1,9 +1,8 @@
 package com.thiscompany.ttrack.exceptions.base;
 
 
+import com.thiscompany.ttrack.utils.common.ProblemDetailBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -12,75 +11,70 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.Locale;
-import java.util.Objects;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
-
-    private final MessageSource messageSource;
-
-    private ProblemDetail buildProblemDetail(
-            HttpStatus status, String messageKey, Object[] args, Locale locale
-    ) {
-        return ProblemDetail.forStatusAndDetail(
-                status,
-                Objects.requireNonNull(
-                        messageSource.getMessage(messageKey, args, "error", LocaleContextHolder.getLocale())
-                )
-        );
-    }
-
-    private ResponseEntity<ProblemDetail> buildProblemDetailResponse(
-            HttpStatus status, String messageKey,
-            Object[] args, Locale locale
-    ) {
-        var problemDetail = buildProblemDetail(status, messageKey, args, LocaleContextHolder.getLocale());
-        return ResponseEntity.status(status).body(problemDetail);
-    }
-
-    @ExceptionHandler(CustomRuntimeException.class)
-    public ResponseEntity<ProblemDetail> handleCustomRuntimeException(
-            CustomRuntimeException ex, Locale locale
-    ) {
-        return buildProblemDetailResponse(
-                ex.getHttpStatus(),
-                ex.getMessage(),
-                ex.getArgs(),
-                LocaleContextHolder.getLocale()
-        );
-    }
-
-    @ExceptionHandler(BindException.class)
-    public ResponseEntity<ProblemDetail> handleBindException(BindException ex, Locale locale) {
-        var problemdetail =  buildProblemDetail(
-                HttpStatus.BAD_REQUEST,
-                "error.400",
-                new Object[0],
-                LocaleContextHolder.getLocale()
-        );
-
-        problemdetail.setProperty("errors", ex.getAllErrors()
-                .stream()
-                .map(ObjectError::getDefaultMessage)
-                .toList()
-        );
-        return ResponseEntity.badRequest().body(problemdetail);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ProblemDetail> handleHttpMessageNotReadableException(
-            HttpMessageNotReadableException exception,
-            Locale locale
-    ) {
-        return buildProblemDetailResponse(
-                HttpStatus.BAD_REQUEST,
-                "error.400",
-                new Object[] {exception.getMessage()},
-                LocaleContextHolder.getLocale()
-        );
-    }
-
+	
+	private final ProblemDetailBuilder problemBuilder;
+	
+	@ExceptionHandler(CustomRuntimeException.class)
+	public ResponseEntity<ProblemDetail> handleCustomRuntimeException(
+		CustomRuntimeException ex
+	) {
+		return problemBuilder.buildProblemDetailResponse(
+			ex.getHttpStatus(),
+			ex.getMessage(),
+			ex.getArgs()
+		);
+	}
+	
+	@ExceptionHandler(BindException.class)
+	public ResponseEntity<ProblemDetail> handleBindException(BindException ex) {
+		var problemdetail = problemBuilder.buildProblemDetail(
+			HttpStatus.BAD_REQUEST,
+			"error.400",
+			new Object[0]
+		);
+		problemdetail.setDetail(null);
+		problemdetail.setProperty("errors", ex.getAllErrors()
+											  .stream()
+											  .map(ObjectError::getDefaultMessage)
+											  .toList()
+		);
+		return ResponseEntity.badRequest()
+							 .body(problemdetail);
+	}
+	
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ProblemDetail> handleHttpMessageNotReadableException(
+		HttpMessageNotReadableException exception
+	) {
+		return problemBuilder.buildProblemDetailResponse(
+			HttpStatus.BAD_REQUEST,
+			"error.400",
+			new Object[]{exception.getMessage()}
+		);
+	}
+	
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ProblemDetail> handleNoResourceFoundException(NoResourceFoundException ex) {
+		return problemBuilder.buildProblemDetailResponse(
+			HttpStatus.NOT_FOUND,
+			"error.404",
+			new Object[]{ex.getBody().getInstance()}
+		);
+	}
+	
+	@ExceptionHandler(HttpServerErrorException.InternalServerError.class)
+	public ResponseEntity<ProblemDetail> handleInternalServerErrorException(HttpServerErrorException.InternalServerError exception) {
+		return problemBuilder.buildProblemDetailResponse(
+			HttpStatus.BAD_REQUEST,
+			"error.400",
+			new Object[]{exception.getMessage()}
+		);
+	}
+	
 }

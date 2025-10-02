@@ -11,7 +11,8 @@
         <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout disableAnsi="false">
                 <replace regex="(password=)([^\\]*)(\]\])" replacement="$1***$3"/>
-                <Pattern>%d{dd-MM-yyyy HH:mm:ss.SS} %highlight{%-1p} [%-10.50thread] %style{%X} %-25.25logger{30} -- %highlight{%m} %n</Pattern>
+                <Pattern>%d{dd-MM-yyyy HH:mm:ss.SS} %highlight{%-5p} [%-10.50thread] %style{%X} %-25.25logger{30}: %highlight{%m} %n
+                </Pattern>
             </PatternLayout>
         </Console>
     </Appenders>
@@ -21,14 +22,12 @@
         <Root level="INFO">
             <AppenderRef ref="STDOUT"/>
         </Root>
-        <Logger name="sun.rmi" level="INFO"/>
-        <Logger name="javax.management" level="INFO"/>
         <Logger name="com.zaxxer" level="WARN"/>
         <Logger name="org.apache" level="WARN"/>
         <Logger name="org.postgresql" level="WARN"/>
-        <Logger name="org.springframework.security" level="INFO"/>
-        <Logger name="org.springframework.web" level="INFO"/>
-        <Logger name="org.springframework.data.jpa" level="INFO"/>
+        <Logger name="org.springframework.security" level="DEBUG"/>
+        <Logger name="org.springframework.web" level="DEBUG"/>
+        <Logger name="org.springframework.data" level="INFO"/>
         <Logger name="org.hibernate" level="WARN"/>
         <Logger name="org.springframework.kafka" level="INFO"/>
     </Loggers>

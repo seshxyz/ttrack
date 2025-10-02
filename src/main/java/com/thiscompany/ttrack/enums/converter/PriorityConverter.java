@@ -4,9 +4,10 @@ import com.thiscompany.ttrack.enums.Priority;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
-public class PriorityConverter extends GenericParamConverter<Priority> {
-
-    public PriorityConverter() {
-        super(Priority.class);
-    }
+public final class PriorityConverter extends GenericParamConverter<Priority> {
+	
+	public PriorityConverter() {
+		super(Priority.class);
+	}
+	
 }

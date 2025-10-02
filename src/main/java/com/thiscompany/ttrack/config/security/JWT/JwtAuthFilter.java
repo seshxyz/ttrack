@@ -1,7 +1,7 @@
-package com.thiscompany.ttrack.config.JWT;
+package com.thiscompany.ttrack.config.security.JWT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thiscompany.ttrack.exceptions.not_found.UserNotFoundException;
+import com.thiscompany.ttrack.exceptions.empty.JwtEmptySubjectException;
 import com.thiscompany.ttrack.model.User;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -18,6 +18,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,6 +26,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Objects;
+import java.util.Optional;
+
+import static com.thiscompany.ttrack.config.security.JWT.ClaimsExtractorService.threadClaimsHolder;
 
 @Component
 @RequiredArgsConstructor
@@ -46,27 +50,29 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     return;
                 }
                 String token = authHeader.substring(7);
-                String username = claimsExtractor.extractSubject(token);
+                claimsExtractor.extractAllClaims(token);
+                String username = Optional.of(claimsExtractor.extractSubject()).orElseThrow(()->new RuntimeException("user.not_found"));
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    if(claimsExtractor.areTokenDatesValid(token)){
+                    if(claimsExtractor.validNotBefore(threadClaimsHolder.get())){
                         setAuthentication(token, request);
                         filterChain.doFilter(request, response);
                     }
                 }
+                else throw new JwtEmptySubjectException();
 
-            } catch (ExpiredJwtException e) {
-                returnProblemDetailResponse(request, response, "token.expired", null);
-            } catch (IllegalArgumentException e) {
-                returnProblemDetailResponse(request, response, "token.empty_subject", null);
-            } catch (UserNotFoundException e) {
-                returnProblemDetailResponse(request, response, "user.not.found", new Object[]{e.getMessage()});
             } catch (SignatureException e) {
                 returnProblemDetailResponse(request, response, "token.signature_invalid", null);
+            } catch (JwtEmptySubjectException e) {
+                returnProblemDetailResponse(request, response, "token.empty_subject", null);
+            } catch (ExpiredJwtException e) {
+                returnProblemDetailResponse(request, response, "token.expired", null);
+            } catch (UsernameNotFoundException e) {
+                returnProblemDetailResponse(request, response, "user.not_found", new Object[]{e.getMessage()});
             }
         }
 
     private void setAuthentication(String token, HttpServletRequest request) {
-        String username = Objects.requireNonNull(claimsExtractor.extractSubject(token));
+        String username = Objects.requireNonNull(claimsExtractor.extractSubject());
         User userToAuthenticate = (User) userDetailsService.loadUserByUsername(username);
         var authToken = new UsernamePasswordAuthenticationToken(
                 userToAuthenticate,

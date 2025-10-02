@@ -16,17 +16,17 @@ import java.util.Set;
 @NoArgsConstructor
 @Table(name = "permission")
 public class Permission {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(updatable = false)
-    private Short id;
-
-    @Column(unique = true, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private SystemAuthority name;
-
-    @OneToMany(mappedBy = "permission", fetch = FetchType.LAZY)
-    private Set<UserPermission> userAuthorities;
-
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(updatable = false)
+	private Short id;
+	
+	@Column(unique = true, nullable = false)
+	@Enumerated(EnumType.STRING)
+	private SystemAuthority name;
+	
+	@OneToMany(mappedBy = "permission", fetch = FetchType.LAZY)
+	private Set<UserPermission> userAuthorities;
+	
 }

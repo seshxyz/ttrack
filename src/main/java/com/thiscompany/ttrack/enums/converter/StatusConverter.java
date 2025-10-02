@@ -5,8 +5,9 @@ import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
 public class StatusConverter extends GenericParamConverter<TaskStatus> {
-
-    public StatusConverter() {
-        super(TaskStatus.class);
-    }
+	
+	public StatusConverter() {
+		super(TaskStatus.class);
+	}
+	
 }

@@ -29,14 +29,9 @@ public class CustomSpecifications {
         );
     }
 
-    public static Specification<Task> filterByParam(
-        String requestUser,
-        String title,
-        String details,
-        String status,
-        String state,
-        String priority,
-        Boolean isCompleted
+    public static Specification<Task> filterByParams(
+        String requestUser, String title, String details, String status,
+        String state, String priority, Boolean isCompleted
     ) {
         return (root, query, cb) -> {
             List<Predicate> predicates = Stream.of(

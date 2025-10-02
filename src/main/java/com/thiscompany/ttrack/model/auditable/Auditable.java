@@ -15,20 +15,21 @@ import java.util.Date;
 @Getter @Setter
 @MappedSuperclass
 public class Auditable {
-
-    @CreatedDate
-    @JsonFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-    @Column(nullable = false)
-    private Date createdAt;
-
-    @CreatedBy
-    @Column(nullable = false)
-    private String createdBy;
-
-    @LastModifiedDate
-    @JsonFormat(pattern = "dd-MM-YYYY HH:mm:ss")
-    private Date updatedAt;
-
-    @LastModifiedBy
-    private String updatedBy;
+	
+	@CreatedDate
+	@JsonFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+	@Column(nullable = false)
+	private Date createdAt;
+	
+	@CreatedBy
+	@Column(nullable = false)
+	private String createdBy;
+	
+	@LastModifiedDate
+	@JsonFormat(pattern = "dd-MM-YYYY HH:mm:ss")
+	private Date updatedAt;
+	
+	@LastModifiedBy
+	private String updatedBy;
+	
 }

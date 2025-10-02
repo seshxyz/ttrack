@@ -1,12 +1,11 @@
-package com.thiscompany.ttrack.kafka.user_auth;
+package com.thiscompany.ttrack.kafka.consumer;
 
 import com.thiscompany.ttrack.controller.user.dto.UserAuthDate;
-import com.thiscompany.ttrack.service.user.auth_utils.SingleObjectContainer;
-import com.thiscompany.ttrack.service.user.auth_utils.UserAuthDataWriter;
+import com.thiscompany.ttrack.service.authentication.entry_logging.UserAuthenticationWriter;
+import com.thiscompany.ttrack.utils.SingleCollectionContainer;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,18 +24,19 @@ import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
-public class KafkaAuthConsumer {
+public class AuthenticationConsumer {
 
-    private final UserAuthDataWriter userAuthDataWriter;
+    private final UserAuthenticationWriter userAuthenticationWriter;
+    private final ExecutorService kafkaExecutorService;
 
-    private final static int BATCH_SIZE = 20;
+    private final static int BATCH_SIZE = 100;
 
-    private static final Logger log = LoggerFactory.getLogger(KafkaAuthConsumer.class);
-
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationConsumer.class);
+    
     private final AtomicInteger counter = new AtomicInteger(0);
     private final AtomicBoolean isFlushing = new AtomicBoolean(false);
     private final Supplier<Instant> lastFlushTime = Instant::now;
-    private final SingleObjectContainer<List<UserAuthDate>> container = new SingleObjectContainer<>(ArrayList::new);
+    private final SingleCollectionContainer<List<UserAuthDate>> container = new SingleCollectionContainer<>(ArrayList::new);
     private final ConcurrentHashMap<String, LocalDateTime> eventMap = new ConcurrentHashMap<>();
 
     @KafkaListener(topics = "${app.kafka.topic}", groupId = "${app.kafka.group-id}", info = "auth-event")
@@ -47,36 +49,38 @@ public class KafkaAuthConsumer {
         });
         log.info("User [{}] authenticated {}", info.username(), info.lastLogin());
         if(counter.get() >= BATCH_SIZE && isFlushing.compareAndSet(false, true)) {
-                executeFlushing();
-        }
-    }
-
-    private void executeFlushing() {
-        List<UserAuthDate> dataSet = container.acquire();
-        try {
-            eventMap.forEach((key, value) -> dataSet.add(new UserAuthDate(key, value)));
-
-            userAuthDataWriter.flushDataToDatabase(dataSet, BATCH_SIZE);
-
-            eventMap.clear();
-            counter.set(0);
-            container.release(dataSet);
-            isFlushing.set(false);
-        } catch (DataAccessException e) {
-            counter.set(0);
-            isFlushing.set(false);
-            container.release(dataSet);
-            log.error(e.getMessage(), e.getCause());
-        }
-        log.debug("Data flushed at: {}", lastFlushTime.get());
-    }
-
-
-    @Scheduled(fixedDelay = 8, timeUnit = TimeUnit.SECONDS, initialDelay = 20)
-    public void tryFlushDataByTime() {
-        if(!eventMap.isEmpty() && isFlushing.compareAndSet(false, true)) {
             executeFlushing();
         }
+    }
+    
+    private void executeFlushing() {
+        List<UserAuthDate> dataSet = container.acquire();
+        eventMap.forEach((key, value) -> dataSet.add(new UserAuthDate(key, value)));
+        
+        CompletableFuture.runAsync(()->{
+            userAuthenticationWriter.flushDataToDatabase(dataSet, BATCH_SIZE);
+        }, kafkaExecutorService).exceptionallyAsync((ex) -> {
+            resetAtomicsAndReleaseContainer();
+            log.error(ex.getMessage(), ex.getCause());
+            return null;
+        });
+        eventMap.clear();
+        resetAtomicsAndReleaseContainer();
+        
+        log.debug("Data flushed at: {}", lastFlushTime.get());
+    }
+    
+    @Scheduled(fixedDelay = 15, timeUnit = TimeUnit.SECONDS, initialDelay = 20)
+    public void tryFlushDataByTime() {
+        if (!eventMap.isEmpty() && isFlushing.compareAndSet(false, true)) {
+            executeFlushing();
+        }
+    }
+    
+    private void resetAtomicsAndReleaseContainer() {
+        container.release(container.acquire());
+        counter.set(0);
+        isFlushing.set(false);
     }
 
 }

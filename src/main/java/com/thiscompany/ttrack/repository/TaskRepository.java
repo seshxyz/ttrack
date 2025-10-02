@@ -12,20 +12,21 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, String>, JpaSpecificationExecutor<Task> {
-
-    @EntityGraph(value = "task.graph" , type = EntityGraph.EntityGraphType.FETCH)
-    Optional<Task> findById(String id);
-
-    void deleteTaskById(String id);
-
-    Optional<Task> findOne(Specification<Task> spec);
-
-    @EntityGraph(value = "task.graph", type = EntityGraph.EntityGraphType.FETCH)
-    @Override
-    List<Task> findAll(Specification<Task> spec);
-
-    @Override
-    boolean exists(Specification<Task> spec);
-
-    Page<Task> findAll(Specification<Task> spec, Pageable pageable);
+	
+	@EntityGraph(value = "task.graph", type = EntityGraph.EntityGraphType.FETCH)
+	Optional<Task> findById(String id);
+	
+	void deleteTaskById(String id);
+	
+	Optional<Task> findOne(Specification<Task> spec);
+	
+	@EntityGraph(value = "task.graph", type = EntityGraph.EntityGraphType.FETCH)
+	@Override
+	List<Task> findAll(Specification<Task> spec);
+	
+	@Override
+	boolean exists(Specification<Task> spec);
+	
+	Page<Task> findAll(Specification<Task> spec, Pageable pageable);
+	
 }

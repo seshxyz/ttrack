@@ -1,4 +1,4 @@
-package com.thiscompany.ttrack.service.user.auth_utils;
+package com.thiscompany.ttrack.service.authentication.entry_logging;
 
 import com.thiscompany.ttrack.controller.user.dto.UserAuthDate;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserAuthDataWriter {
+public class UserAuthenticationWriter {
 
     private final JdbcTemplate jdbcTemplate;
 
