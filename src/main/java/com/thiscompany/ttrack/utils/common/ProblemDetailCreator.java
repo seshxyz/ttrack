@@ -12,11 +12,11 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
-public class ProblemDetailBuilder {
+public class ProblemDetailCreator {
 	
 	private final MessageSource messageSource;
 	
-	public ProblemDetail buildProblemDetail(
+	public ProblemDetail createProblemDetail(
 		HttpStatus status, String messageKey, Object[] args
 	) {
 		return ProblemDetail.forStatusAndDetail(
@@ -31,7 +31,7 @@ public class ProblemDetailBuilder {
 		HttpStatus status, String messageKey,
 		Object[] args
 	) {
-		var problemDetail = buildProblemDetail(status, messageKey, args);
+		var problemDetail = createProblemDetail(status, messageKey, args);
 		return ResponseEntity.status(status).body(problemDetail);
 	}
 	

@@ -1,4 +1,4 @@
-package com.thiscompany.ttrack.utils;
+package com.thiscompany.ttrack.core;
 
 import java.util.Collection;
 import java.util.function.Supplier;
@@ -13,14 +13,15 @@ public class SingleCollectionContainer<E extends Collection<?>> {
 		this.factory = factory;
 	}
 	
-	public E acquire() {
+	public E getOrCreate() {
 		E temp = object;
 		return temp != null ? temp : factory.get();
 	}
 	
-	public void release(E collection) {
-		collection.clear();
-		object = collection;
+	public void clearAndRelease() {
+		if (this.object != null) {
+			this.object.clear();
+		}
 	}
 	
 }

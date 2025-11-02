@@ -3,6 +3,7 @@ package com.thiscompany.ttrack.config.security.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thiscompany.ttrack.exceptions.empty.JwtEmptySubjectException;
 import com.thiscompany.ttrack.model.User;
+import com.thiscompany.ttrack.utils.common.ProblemDetailCreator;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -10,11 +11,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,16 +26,14 @@ import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.thiscompany.ttrack.config.security.JWT.ClaimsExtractorService.threadClaimsHolder;
-
 @Component
 @RequiredArgsConstructor
-public class JwtAuthFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
     private final ClaimsExtractorService claimsExtractor;
     private final ObjectMapper objectMapper;
-    private final MessageSource messageSource;
+    private final ProblemDetailCreator problemDetailCreator;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -51,14 +47,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
                 String token = authHeader.substring(7);
                 claimsExtractor.extractAllClaims(token);
-                String username = Optional.of(claimsExtractor.extractSubject()).orElseThrow(()->new RuntimeException("user.not_found"));
+                String username = Optional.of(claimsExtractor.extractSubject())
+                                          .orElseThrow(JwtEmptySubjectException::new);
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    if(claimsExtractor.validNotBefore(threadClaimsHolder.get())){
+                    if(claimsExtractor.tokenValidNotBefore()){
                         setAuthentication(token, request);
                         filterChain.doFilter(request, response);
                     }
                 }
-                else throw new JwtEmptySubjectException();
 
             } catch (SignatureException e) {
                 returnProblemDetailResponse(request, response, "token.signature_invalid", null);
@@ -85,15 +81,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private void returnProblemDetailResponse(HttpServletRequest request,
                                              HttpServletResponse response,
-                                             String detail, Object[] args
-    ) throws IOException {
-        var problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNAUTHORIZED,
-                Objects.requireNonNull(messageSource.getMessage(detail, new Object[]{args}, "error.401", LocaleContextHolder.getLocale()))
-        );
+                                             String detail, Object[] args) throws IOException {
+        
+        var problemDetail = problemDetailCreator.createProblemDetail(HttpStatus.UNAUTHORIZED, detail, args);
         problemDetail.setInstance(URI.create(request.getRequestURI()));
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(problemDetail));
+        return;
     }
 }

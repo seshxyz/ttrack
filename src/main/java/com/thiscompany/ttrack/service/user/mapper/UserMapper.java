@@ -19,6 +19,7 @@ public interface UserMapper {
 	
 	@Mappings({
 		@Mapping(target = "permissions", source = "permissions", qualifiedByName = "mapFromPermissionsToStringSet"),
+		@Mapping(target = "isActive", source = "active")
 	})
 	UserResponse entityToResponse(User user);
 	

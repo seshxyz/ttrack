@@ -22,17 +22,14 @@ import org.springframework.http.converter.json.ProblemDetailJacksonMixin;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.Collections;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableJpaAuditing
 @EnableScheduling
-@EnableConfigurationProperties({AppConfig.class, JwtProperties.class})
+@EnableConfigurationProperties({GlobalApplicationConfig.class, JwtProperties.class})
 @ConfigurationProperties(prefix = "app")
-public class AppConfig {
+public class GlobalApplicationConfig {
 	
 	@Value("${info.application.version}")
 	private String version;
@@ -82,5 +79,10 @@ public class AppConfig {
 			TimeUnit.SECONDS,
 			new SynchronousQueue<>()
 		);
+	}
+	
+	@Bean("authTaskExecutorService")
+	public ExecutorService authTaskExecutorService() {
+		return Executors.newSingleThreadExecutor();
 	}
 }

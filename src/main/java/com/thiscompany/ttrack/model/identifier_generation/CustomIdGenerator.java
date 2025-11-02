@@ -1,26 +1,26 @@
 package com.thiscompany.ttrack.model.identifier_generation;
 
-import com.thiscompany.ttrack.model.Task;
-import com.thiscompany.ttrack.model.User;
+import com.fasterxml.uuid.Generators;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.type.Type;
 
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Properties;
 
 public class CustomIdGenerator implements IdentifierGenerator {
 	
+	private String prefix;
+	
 	@Override
 	public Object generate(SharedSessionContractImplementor ssci, Object o) {
-		String prefix = switch (o) {
-			case User u -> u.generateId();
-			case Task t -> t.generateId();
-			default -> throw new IllegalArgumentException("Unexpected object type: " + o);
-		};
-		long leastBits = ThreadLocalRandom.current().nextLong();
-		long mostBits = ThreadLocalRandom.current().nextLong();
-		String uuid = new UUID(mostBits, leastBits).toString().substring(8);
-		return prefix.substring(1,9) + uuid;
+		String uuid = Generators.timeBasedEpochGenerator().generate().toString();
+		return this.prefix + uuid;
+	}
+	
+	@Override
+	public void configure(Type type, Properties parameters, ServiceRegistry serviceRegistry) {
+		prefix = parameters.getProperty("prefix");
 	}
 	
 }

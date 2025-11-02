@@ -7,19 +7,21 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PermissionConstant {
+public class PermissionConstantInitializer {
 	
-	private static Permission DEFAULT_PERMISSION_ID;
+	private static Permission DEFAULT_PERMISSION;
+	private static final PermissionConstantInitializer INSTANCE = new PermissionConstantInitializer();
+	
+	private PermissionConstantInitializer() {}
 	
 	@EventListener(classes = ApplicationReadyEvent.class)
 	public void initializeSettingUp(ApplicationReadyEvent event) {
 		short id = 1;
-		PermissionConstant.DEFAULT_PERMISSION_ID =
+		PermissionConstantInitializer.DEFAULT_PERMISSION =
 			event.getApplicationContext().getBean(PermissionRepository.class).findPermissionById(id);
 	}
 	
 	public static Permission getDefaultPermission() {
-		return DEFAULT_PERMISSION_ID;
+		return DEFAULT_PERMISSION;
 	}
-	
 }

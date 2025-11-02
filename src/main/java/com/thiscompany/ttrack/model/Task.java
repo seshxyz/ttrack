@@ -4,14 +4,11 @@ import com.thiscompany.ttrack.enums.Priority;
 import com.thiscompany.ttrack.enums.TaskState;
 import com.thiscompany.ttrack.enums.TaskStatus;
 import com.thiscompany.ttrack.model.auditable.Auditable;
-import com.thiscompany.ttrack.model.identifier_generation.strategy.IdGeneration;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.Objects;
 
 
 @SuppressWarnings("deprecation")
@@ -25,10 +22,16 @@ import java.util.Objects;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @EntityListeners(AuditingEntityListener.class)
 @NamedEntityGraph(name = "task.graph", attributeNodes = @NamedAttributeNode("owner"))
-public class Task extends Auditable implements IdGeneration {
+public class Task extends Auditable {
 	
 	@Id
-	@GenericGenerator(name = "custom-taskId", strategy = "com.thiscompany.ttrack.model.identifier_generation.CustomIdGenerator")
+	@GenericGenerator(
+		name = "custom-taskId",
+		strategy = "com.thiscompany.ttrack.model.identifier_generation.CustomIdGenerator",
+		parameters = {
+			@org.hibernate.annotations.Parameter(name = "prefix", value = "t")
+		}
+	)
 	@GeneratedValue(generator = "custom-taskId")
 	@Column(updatable = false)
 	@EqualsAndHashCode.Include
@@ -59,21 +62,6 @@ public class Task extends Auditable implements IdGeneration {
 	)
 	@EqualsAndHashCode.Include
 	private User owner;
-	
-	@Override
-	public String generateId() {
-		return "t" + Math.abs(Objects.hash(owner, getCreatedAt()));
-	}
-	
-	public Task setStatus(TaskStatus status) {
-		this.status = status;
-		return this;
-	}
-	
-	public Task setState(TaskState state) {
-		this.state = state;
-		return this;
-	}
 	
 	public boolean getIsCompleted() {
 		return isCompleted;

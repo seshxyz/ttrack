@@ -1,6 +1,6 @@
-package com.thiscompany.ttrack.config;
+package com.thiscompany.ttrack.controller;
 
-import com.thiscompany.ttrack.utils.common.ProblemDetailBuilder;
+import com.thiscompany.ttrack.utils.common.ProblemDetailCreator;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Own mock-class to handle 500s
+ * Own yet mock-class to handle 500s
  */
 @RestController
 @RequiredArgsConstructor
 public class ErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
 	
-	private final ProblemDetailBuilder problemBuilder;
+	private final ProblemDetailCreator problemBuilder;
 	
 	@RequestMapping("/error")
 	public ResponseEntity<ProblemDetail> handleError(HttpServletRequest request) {
-		var problemDetail = problemBuilder.buildProblemDetail(
+		var problemDetail = problemBuilder.createProblemDetail(
 			HttpStatus.BAD_REQUEST,
 			"error.500",
 			new Object[]{}

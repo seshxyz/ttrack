@@ -42,5 +42,4 @@ public class SecurityConfigProperties {
 								   .orElseThrow(() -> new UserNotFoundException("user.not_found"));
 	}
 	
-	
 }

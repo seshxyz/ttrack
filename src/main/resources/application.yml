@@ -97,6 +97,8 @@ spring:
     client-id: 2track
     listener:
       concurrency: 3
+    admin:
+      fail-fast: true
 
 management:
   endpoints:

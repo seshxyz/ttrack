@@ -4,7 +4,7 @@ import com.thiscompany.ttrack.enums.TaskState;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
-public class StateConverter extends GenericParamConverter<TaskState> {
+public final class StateConverter extends GenericParamConverter<TaskState> {
 	
 	protected StateConverter() {
 		super(TaskState.class);

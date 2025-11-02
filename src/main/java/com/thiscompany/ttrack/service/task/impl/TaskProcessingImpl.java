@@ -22,7 +22,7 @@ import static com.thiscompany.ttrack.enums.TaskStatus.COMPLETED;
 @RequiredArgsConstructor
 public class TaskProcessingImpl implements TaskProcessing {
 	
-	private final Logger logger = LoggerFactory.getLogger(TaskProcessingImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TaskProcessingImpl.class);
 	
 	private final TaskRepository taskRepo;
 	
@@ -84,7 +84,7 @@ public class TaskProcessingImpl implements TaskProcessing {
 				default -> ResponseEntity.ok("Task promoted further. Current status: " + status);
 			};
 		}
-		logger.error(
+		LOG.error(
 			"Problem while building response. Payload: [task_id: {}, status: {}, isStatusChanged: {}]",
 			id, status, isStatusChanged
 		);

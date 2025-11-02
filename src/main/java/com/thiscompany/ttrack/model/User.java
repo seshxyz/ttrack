@@ -1,6 +1,5 @@
 package com.thiscompany.ttrack.model;
 
-import com.thiscompany.ttrack.model.identifier_generation.strategy.IdGeneration;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -12,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,12 +27,15 @@ import java.util.stream.Collectors;
 	attributeNodes = @NamedAttributeNode(value = "permissions", subgraph = "permission"),
 	subgraphs = @NamedSubgraph(name = "permission", attributeNodes = @NamedAttributeNode("permission"))
 )
-public class User implements UserDetails, IdGeneration {
+public class User implements UserDetails {
 	
 	@Id
 	@GenericGenerator(
 		name = "custom-userId",
-		strategy = "com.thiscompany.ttrack.model.identifier_generation.CustomIdGenerator"
+		strategy = "com.thiscompany.ttrack.model.identifier_generation.CustomIdGenerator",
+		parameters = {
+			@org.hibernate.annotations.Parameter(name = "prefix", value = "u")
+		}
 	)
 	@GeneratedValue(generator = "custom-userId")
 	@Column(updatable = false)
@@ -75,10 +76,5 @@ public class User implements UserDetails, IdGeneration {
 		fetch = FetchType.LAZY
 	)
 	private Set<UserPermission> permissions = new HashSet<>();
-	
-	@Override
-	public String generateId() {
-		return "usr" + Math.abs(Objects.hash(username));
-	}
 	
 }

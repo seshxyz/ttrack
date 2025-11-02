@@ -39,9 +39,8 @@ public class JwtService {
 		}
 		
 		public Generator subject(@NotNull String subject) {
-			Optional.of(subject).ifPresentOrElse(inputSubject -> this.subject = inputSubject, () -> {
-				throw new JwtEmptySubjectException();
-			});
+			Optional.of(subject)
+					.ifPresentOrElse(inputSubject -> this.subject = inputSubject, JwtEmptySubjectException::new);
 			this.subject = subject;
 			return this;
 		}

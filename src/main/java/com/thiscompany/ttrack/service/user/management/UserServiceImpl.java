@@ -1,4 +1,4 @@
-package com.thiscompany.ttrack.service.user.impl;
+package com.thiscompany.ttrack.service.user.management;
 
 import com.thiscompany.ttrack.controller.user.dto.UserCreationRequest;
 import com.thiscompany.ttrack.controller.user.dto.UserResponse;
@@ -9,7 +9,7 @@ import com.thiscompany.ttrack.model.UserPermission;
 import com.thiscompany.ttrack.repository.UserRepository;
 import com.thiscompany.ttrack.service.user.UserService;
 import com.thiscompany.ttrack.service.user.mapper.UserMapper;
-import com.thiscompany.ttrack.utils.constant.PermissionConstant;
+import com.thiscompany.ttrack.utils.constant.PermissionConstantInitializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +20,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@PreAuthorize("{hasRole('ADMIN')}")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class UserServiceImpl implements UserService {
 	
 	private final UserRepository userRepo;
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 		User newUser = userMapper.createRequestToEntity(request, passwordEncoder);
 		UserPermission userPermission =
 			new UserPermission().setUser_name(newUser)
-								.setPermission(PermissionConstant.getDefaultPermission());
+								.setPermission(PermissionConstantInitializer.getDefaultPermission());
 		newUser.setPermissions(Set.of(userPermission));
 		userRepo.save(newUser);
 		return userMapper.entityToResponse(newUser);

@@ -15,3 +15,4 @@ docker/.env
 
 
 /datasets/
+/src/main/java/com/thiscompany/ttrack/kafka/service/ 

@@ -30,10 +30,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 	
-	private static final Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TaskServiceImpl.class);
 	
 	private final TaskRepository taskRepo;
-	
 	private final TaskMapper taskMapper;
 	
 	
@@ -46,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
 			.setPriority(applyPriority(request.priority()))
 			.setOwner(user);
 		taskRepo.save(task);
-		log.info("Task created with id {}", task.getId());
+		LOG.info("Task created with id {}", task.getId());
 		return taskMapper.entityToResponse(task);
 	}
 	
@@ -59,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
 			.setPriority(applyPriority(request.priority()))
 			.setOwner(user);
 		taskRepo.save(task);
-		log.info("Task created with id {} ", task.getId());
+		LOG.info("Task created with id {} ", task.getId());
 		return taskMapper.entityToResponse(task);
 	}
 	
@@ -101,7 +100,7 @@ public class TaskServiceImpl implements TaskService {
 		}
 		taskMapper.patchEntity(updateRequest, taskToUpdate);
 		taskRepo.save(taskToUpdate);
-		log.debug("Task updated with id {}, [payload: {}]", id, taskToUpdate);
+		LOG.debug("Task updated with id {}, [payload: {}]", id, taskToUpdate);
 		return taskMapper.entityToResponse(taskToUpdate);
 	}
 	
@@ -115,9 +114,9 @@ public class TaskServiceImpl implements TaskService {
 		);
 		if (taskRepo.exists(spec)) {
 			taskRepo.deleteTaskById(id);
-			log.debug("Obj removed with {}", id);
+			LOG.debug("Obj removed with {}", id);
 		} else {
-			log.warn("Error occured while deleting task {}", id);
+			LOG.warn("Error occured while deleting task {}", id);
 			throw new TaskNotFoundException(id);
 		}
 	}

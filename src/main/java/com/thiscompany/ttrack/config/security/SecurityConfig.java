@@ -1,6 +1,6 @@
 package com.thiscompany.ttrack.config.security;
 
-import com.thiscompany.ttrack.config.security.JWT.JwtAuthFilter;
+import com.thiscompany.ttrack.config.security.JWT.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,10 +28,10 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 	
-	private final JwtAuthFilter jwtAuthFilter;
+	private final JwtAuthenticationFilter jwtAuthFilter;
 	private final AuthenticationProvider authenticationProvider;
 	private final CustomAccessDeniedHandler customAccessDeniedHandler;
-	private final AuthEntryPoint authEntryPoint;
+	private final AppAuthenticationEntryPoint authEntryPoint;
 	private final RequestPostHandleInterceptor requestPostHandleInterceptor;
 	
 	@Value("${server.port}")
@@ -40,9 +40,6 @@ public class SecurityConfig implements WebMvcConfigurer {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(CsrfConfigurer::disable)
-			.cors(httpSecurityCorsConfigurer -> {
-			
-			})
 			.authorizeHttpRequests(
 				auth ->
 					auth
@@ -77,6 +74,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 		corsConfiguration.setAllowedMethods(List.of("GET","POST","PATCH","DELETE","OPTIONS"));
 		corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:" + port));
+		corsConfiguration.setAllowCredentials(true);
 		
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);

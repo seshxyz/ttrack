@@ -1,7 +1,7 @@
 package com.thiscompany.ttrack.exceptions.base;
 
 
-import com.thiscompany.ttrack.utils.common.ProblemDetailBuilder;
+import com.thiscompany.ttrack.utils.common.ProblemDetailCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -18,13 +18,13 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 	
-	private final ProblemDetailBuilder problemBuilder;
+	private final ProblemDetailCreator problemDetailCreator;
 	
 	@ExceptionHandler(CustomRuntimeException.class)
 	public ResponseEntity<ProblemDetail> handleCustomRuntimeException(
 		CustomRuntimeException ex
 	) {
-		return problemBuilder.buildProblemDetailResponse(
+		return problemDetailCreator.buildProblemDetailResponse(
 			ex.getHttpStatus(),
 			ex.getMessage(),
 			ex.getArgs()
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(BindException.class)
 	public ResponseEntity<ProblemDetail> handleBindException(BindException ex) {
-		var problemdetail = problemBuilder.buildProblemDetail(
+		var problemdetail = problemDetailCreator.createProblemDetail(
 			HttpStatus.BAD_REQUEST,
 			"error.400",
 			new Object[0]
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ProblemDetail> handleHttpMessageNotReadableException(
 		HttpMessageNotReadableException exception
 	) {
-		return problemBuilder.buildProblemDetailResponse(
+		return problemDetailCreator.buildProblemDetailResponse(
 			HttpStatus.BAD_REQUEST,
 			"error.400",
 			new Object[]{exception.getMessage()}
@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(NoResourceFoundException.class)
 	public ResponseEntity<ProblemDetail> handleNoResourceFoundException(NoResourceFoundException ex) {
-		return problemBuilder.buildProblemDetailResponse(
+		return problemDetailCreator.buildProblemDetailResponse(
 			HttpStatus.NOT_FOUND,
 			"error.404",
 			new Object[]{ex.getBody().getInstance()}
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(HttpServerErrorException.InternalServerError.class)
 	public ResponseEntity<ProblemDetail> handleInternalServerErrorException(HttpServerErrorException.InternalServerError exception) {
-		return problemBuilder.buildProblemDetailResponse(
+		return problemDetailCreator.buildProblemDetailResponse(
 			HttpStatus.BAD_REQUEST,
 			"error.400",
 			new Object[]{exception.getMessage()}

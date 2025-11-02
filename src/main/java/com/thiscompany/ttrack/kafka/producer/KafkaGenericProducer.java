@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class KafkaCommonProducer<T> {
+public class KafkaGenericProducer<T> {
 	
-	private static final Logger log = LoggerFactory.getLogger(KafkaCommonProducer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(KafkaGenericProducer.class);
 	
 	private final KafkaTemplate<String, T> template;
 	
@@ -23,7 +23,7 @@ public class KafkaCommonProducer<T> {
 								 .setHeader(KafkaHeaders.TOPIC, topic)
 								 .build();
 		template.send(message);
-		log.debug("Message sent: {}", messageObject);
+		LOG.debug("Message sent: {}", messageObject);
 	}
 	
 }

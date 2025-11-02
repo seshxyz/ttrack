@@ -18,9 +18,9 @@ public class ClaimsExtractorService {
 		return threadClaimsHolder.get().getSubject();
 	}
 	
-	public boolean validNotBefore(Claims claims) {
+	public boolean tokenValidNotBefore() {
 		Date currentDate = Date.from(Instant.now());
-		return currentDate.after(claims.getNotBefore());
+		return currentDate.after(threadClaimsHolder.get().getNotBefore());
 	}
 	
 	public void extractAllClaims(String token) {

@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class AuthEntryPoint implements AuthenticationEntryPoint {
+public class AppAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	
 	private final ObjectMapper objectMapper;
 	

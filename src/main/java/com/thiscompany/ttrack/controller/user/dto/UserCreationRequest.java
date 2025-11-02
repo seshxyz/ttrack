@@ -12,7 +12,7 @@ public record UserCreationRequest(
 	String username,
 	
 	@NotEmpty(message = "{field.empty_password}")
-	@Size(min = 8, max = 40, message = "Pfield.short_or_long_password}")
+	@Size(min = 8, max = 40, message = "{field.short_or_long_password}")
 	String password
 
 ) {
